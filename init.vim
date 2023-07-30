@@ -300,8 +300,7 @@ Plug 'lambdalisue/suda.vim' " do stuff like :sudowrite
 Plug 'makerj/vim-pdf'
 
 " Nerd Tree
-Plug 'preservim/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'kyazdani42/nvim-tree.lua'
 
 " CMP
 Plug 'neovim/nvim-lspconfig'
@@ -327,47 +326,25 @@ Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 call plug#end()
 
-" ==================== Basic Config =======================
+" ==================== Vim Basic Config =======================
 nnoremap ; :
-nnoremap <C-B> :NERDTreeToggle<CR>
-" ==================== require custom module ==============
-lua <<EOF
-package.loaded['customs.boot'] = nil
-require 'customs.boot'
-EOF
-" ==================== nvim-treesitter ====================
-if g:nvim_plugins_installation_completed == 1
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-	-- one of "all", "language", or a list of languages
-	ensure_installed = {"typescript", "java", "c", "prisma", "bash", "kotlin", "json", "cpp"},
-	highlight = {
-		enable = true,              -- false will disable the whole extension
-		disable = { "rust" },  -- list of language that will be disabled
-	},
-}
-EOF
-endif
+nnoremap <C-B> :NvimTreeToggle<CR>
+nnoremap <C-f> :Telescope find_files<CR>
 
-" ==================== gitsigns.nvim ====================
-lua <<EOF
-require('gitsigns').setup({
-	signs = {
-    add          = { hl = 'GitSignsAdd'   , text = '▎', numhl='GitSignsAddNr'   , linehl='GitSignsAddLn'    },
-    change       = { hl = 'GitSignsChange', text = '░', numhl='GitSignsChangeNr', linehl='GitSignsChangeLn' },
-    delete       = { hl = 'GitSignsDelete', text = '_', numhl='GitSignsDeleteNr', linehl='GitSignsDeleteLn' },
-    topdelete    = { hl = 'GitSignsDelete', text = '▔', numhl='GitSignsDeleteNr', linehl='GitSignsDeleteLn' },
-    changedelete = { hl = 'GitSignsChange', text = '▒', numhl='GitSignsChangeNr', linehl='GitSignsChangeLn' },
-    untracked    = { hl = 'GitSignsAdd'   , text = '┆', numhl='GitSignsAddNr'   , linehl='GitSignsAddLn'    },
-  },
-})
-EOF
 nnoremap H :Gitsigns preview_hunk_inline<CR>
 nnoremap <LEADER>gr :Gitsigns reset_hunk<CR>
 nnoremap <LEADER>gb :Gitsigns blame_line<CR>
 nnoremap <LEADER>g- :Gitsigns prev_hunk<CR>
 nnoremap <LEADER>g= :Gitsigns next_hunk<CR>
 
+nnoremap <C-,> :NvimTreeFocus<CR>
+nnoremap <C-.> :NvimTreeFocus<CR>
+" ==================== Setup Plugin Custom Config ==============
+if g:nvim_plugins_installation_completed == 1
+lua <<EOF
+package.loaded['boot'] = nil
+require 'boot'
+EOF
 " ==================== nvim-hlslens ====================
 noremap <silent> = <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
@@ -377,61 +354,6 @@ noremap * *<Cmd>lua require('hlslens').start()<CR>
 noremap # #<Cmd>lua require('hlslens').start()<CR>
 noremap g* g*<Cmd>lua require('hlslens').start()<CR>
 noremap g# g#<Cmd>lua require('hlslens').start()<CR>
-
-" ==================== nvim-scrollbar ====================
-if g:nvim_plugins_installation_completed == 1
-lua <<EOF
-require("scrollbar").setup()
-require("scrollbar.handlers.search").setup()
-require("scrollbar").setup({
-	show = true,
-	handle = {
-		text = " ",
-		color = "#928374",
-		hide_if_all_visible = true,
-	},
-	marks = {
-		Search = { color = "yellow" },
-		Misc = { color = "purple" },
-	},
-	handlers = {
-		cursor = true,
-		diagnostic = true,
-		gitsigns = true,
-		handle = true,
-		search = true,
-	},
-})
-EOF
-endif
-
-" ==================== nvim-colorizer.lua ====================
-lua <<EOF
-require("colorizer").setup {
-	filetypes = { "*" },
-	user_default_options = {
-		RGB = true, -- #RGB hex codes
-		RRGGBB = true, -- #RRGGBB hex codes
-		names = true, -- "Name" codes like Blue or blue
-		RRGGBBAA = false, -- #RRGGBBAA hex codes
-		AARRGGBB = true, -- 0xAARRGGBB hex codes
-		rgb_fn = false, -- CSS rgb() and rgba() functions
-		hsl_fn = false, -- CSS hsl() and hsla() functions
-		css = false, -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
-		css_fn = false, -- Enable all CSS *functions*: rgb_fn, hsl_fn
-		-- Available modes for `mode`: foreground, background,  virtualtext
-		mode = "virtualtext", -- Set the display mode.
-		-- Available methods are false / true / "normal" / "lsp" / "both"
-		-- True is same as normal
-		tailwind = false, -- Enable tailwind colors
-		-- parsers can contain values used in |user_default_options|
-		sass = { enable = false, parsers = { css }, }, -- Enable sass colors
-		virtualtext = "■",
-	},
-	-- all the sub-options of filetypes apply to buftypes
-	buftypes = {},
-}
-EOF
 
 " ==================== Dress up my vim ====================
 set termguicolors " enable true colors support
@@ -471,200 +393,8 @@ cmp.setup.cmdline(':', {
 })
 EOF
 
-" ==================== Dressing ===========================
-lua << EOF
-require('dressing').setup({
-  input = {
-    -- Set to false to disable the vim.ui.input implementation
-    enabled = true,
+endif
 
-    -- Default prompt string
-    default_prompt = "Input:",
-
-    -- Can be 'left', 'right', or 'center'
-    title_pos = "left",
-
-    -- When true, <Esc> will close the modal
-    insert_only = true,
-
-    -- When true, input will start in insert mode.
-    start_in_insert = true,
-
-    -- These are passed to nvim_open_win
-    anchor = "SW",
-    border = "rounded",
-    -- 'editor' and 'win' will default to being centered
-    relative = "cursor",
-
-    -- These can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    prefer_width = 40,
-    width = nil,
-    -- min_width and max_width can be a list of mixed types.
-    -- min_width = {20, 0.2} means "the greater of 20 columns or 20% of total"
-    max_width = { 140, 0.9 },
-    min_width = { 20, 0.2 },
-
-    buf_options = {},
-    win_options = {
-      -- Window transparency (0-100)
-      winblend = 10,
-      -- Disable line wrapping
-      wrap = false,
-      -- Indicator for when text exceeds window
-      list = true,
-      listchars = "precedes:…,extends:…",
-      -- Increase this for more context when text scrolls off the window
-      sidescrolloff = 0,
-    },
-
-    -- Set to `false` to disable
-    mappings = {
-      n = {
-        ["<Esc>"] = "Close",
-        ["<CR>"] = "Confirm",
-      },
-      i = {
-        ["<C-c>"] = "Close",
-        ["<CR>"] = "Confirm",
-        ["<Up>"] = "HistoryPrev",
-        ["<Down>"] = "HistoryNext",
-      },
-    },
-
-    override = function(conf)
-      -- This is the config that will be passed to nvim_open_win.
-      -- Change values here to customize the layout
-      return conf
-    end,
-
-    -- see :help dressing_get_config
-    get_config = nil,
-  },
-  select = {
-    -- Set to false to disable the vim.ui.select implementation
-    enabled = true,
-
-    -- Priority list of preferred vim.select implementations
-    backend = { "telescope", "fzf_lua", "fzf", "builtin", "nui" },
-
-    -- Trim trailing `:` from prompt
-    trim_prompt = true,
-
-    -- Options for telescope selector
-    -- These are passed into the telescope picker directly. Can be used like:
-    -- telescope = require('telescope.themes').get_ivy({...})
-    telescope = nil,
-
-    -- Options for fzf selector
-    fzf = {
-      window = {
-        width = 0.5,
-        height = 0.4,
-      },
-    },
-
-    -- Options for fzf-lua
-    fzf_lua = {
-      -- winopts = {
-      --   height = 0.5,
-      --   width = 0.5,
-      -- },
-    },
-
-    -- Options for nui Menu
-    nui = {
-      position = "50%",
-      size = nil,
-      relative = "editor",
-      border = {
-        style = "rounded",
-      },
-      buf_options = {
-        swapfile = false,
-        filetype = "DressingSelect",
-      },
-      win_options = {
-        winblend = 10,
-      },
-      max_width = 80,
-      max_height = 40,
-      min_width = 40,
-      min_height = 10,
-    },
-
-    -- Options for built-in selector
-    builtin = {
-      -- These are passed to nvim_open_win
-      anchor = "NW",
-      border = "rounded",
-      -- 'editor' and 'win' will default to being centered
-      relative = "editor",
-
-      buf_options = {},
-      win_options = {
-        -- Window transparency (0-100)
-        winblend = 10,
-        cursorline = true,
-        cursorlineopt = "both",
-      },
-
-      -- These can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-      -- the min_ and max_ options can be a list of mixed types.
-      -- max_width = {140, 0.8} means "the lesser of 140 columns or 80% of total"
-      width = nil,
-      max_width = { 140, 0.8 },
-      min_width = { 40, 0.2 },
-      height = nil,
-      max_height = 0.9,
-      min_height = { 10, 0.2 },
-
-      -- Set to `false` to disable
-      mappings = {
-        ["<Esc>"] = "Close",
-        ["<C-c>"] = "Close",
-        ["<CR>"] = "Confirm",
-      },
-
-      override = function(conf)
-        -- This is the config that will be passed to nvim_open_win.
-        -- Change values here to customize the layout
-        return conf
-      end,
-    },
-
-    -- Used to override format_item. See :help dressing-format
-    format_item_override = {},
-
-    -- see :help dressing_get_config
-    get_config = nil,
-  },
-})
-EOF
-
-" ==================== Telescope Mappings =================
-nnoremap <C-f> :Telescope find_files<CR>
-lua <<EOF
-require('telescope').setup({
-	defaults = {
-		sorting_strategy = "ascending",
-		layout_config = {
-			prompt_position = 'top',
-		},
-		prompt_prefix = "> ",
-		selection_caret = "- ",
-		path_display = { "smart" },
-	},
-	extensions = {
-		fzf = {
-			fuzzy = true,                    -- false will only do exact matching
-			override_generic_sorter = true,  -- override the generic sorter
-			override_file_sorter = true,     -- override the file sorter
-			case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
-		}
-	}
-})
-require('telescope').load_extension('fzf')
-EOF
 " ==================== Terminal Colors ====================
 let g:terminal_color_0  = '#000000'
 let g:terminal_color_1  = '#FF5555'
