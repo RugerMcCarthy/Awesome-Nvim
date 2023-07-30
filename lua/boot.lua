@@ -8,6 +8,7 @@ local pluginConfigs = {
 	'custom.nvim-colorizer',
 	'custom.nvim-scrollbar',
 	'custom.nvim-treesitter',
+	'custom.code-runner'
 }
 for _, config in pairs(pluginConfigs) do
 	require(config)

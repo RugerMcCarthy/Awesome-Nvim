@@ -40,7 +40,8 @@ wk.register({
   r = {
     name = "重命名操作",
     n = { "<Plug>(coc-rename)", "重命名当前变量" },
-    r = { ":SearchBoxReplace<cr>", "在当前文件中搜索并替换" },
+    r = { ":RunCode<CR>", "运行当前代码" },
+	c = { ":RunClose<CR>", "停止运行当前代码"}
   },
   l = {
     name = "查看操作",
